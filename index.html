@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBTI 人格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        /* 首页样式 */
+        .home-page {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .home-page h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .home-page .credits {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 40px;
+            line-height: 2;
+        }
+
+        .home-page .credits a {
+            color: #6eb5ff;
+            text-decoration: none;
+        }
+
+        .home-page .credits a:hover {
+            text-decoration: underline;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
+        }
+
+        /* 测试页面样式 */
+        .test-page {
+            display: none;
+        }
+
+        .progress-header {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1rem;
+            color: #888;
+        }
+
+        .questions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .question-card.answered {
+            border-color: rgba(233, 69, 96, 0.5);
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .option.selected {
+            background: rgba(233, 69, 96, 0.2);
+            border-color: #e94560;
+        }
+
+        .option-radio {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            border: 2px solid #555;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+
+        .option.selected .option-radio {
+            border-color: #e94560;
+            background: #e94560;
+        }
+
+        .option.selected .option-radio::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .option-label {
+            font-weight: 600;
+            color: #e94560;
+            min-width: 20px;
+        }
+
+        .option-text {
+            color: #ccc;
+        }
+
+        .option.selected .option-text {
+            color: #fff;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .submit-section {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            color: white;
+            border: none;
+            padding: 14px 36px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .submit-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .submit-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
+        }
+
+        .back-btn {
+            background: transparent;
+            color: #888;
+            border: 1px solid #444;
+            padding: 14px 36px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            border-color: #666;
+            color: #fff;
+        }
+
+        /* 结果页面样式 */
+        .result-page {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .result-type {
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 50%, #ffd93d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(233, 69, 96, 0.5)); }
+            to { filter: drop-shadow(0 0 40px rgba(233, 69, 96, 0.8)); }
+        }
+
+        .result-name {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .result-match {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .result-match span {
+            color: #e94560;
+            font-weight: 600;
+        }
+
+        .result-description {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            text-align: left;
+            line-height: 1.8;
+            color: #ccc;
+        }
+
+        .dimensions-title {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .dimension-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: left;
+        }
+
+        .dimension-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .dimension-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .dimension-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        .dimension-value {
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .restart-btn {
+            background: transparent;
+            color: #e94560;
+            border: 2px solid #e94560;
+            padding: 14px 36px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .restart-btn:hover {
+            background: #e94560;
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .home-page h1 {
+                font-size: 1.8rem;
+            }
+            .result-type {
+                font-size: 3.5rem;
+            }
+            .dimensions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 首页（已隐藏） -->
+        <div class="home-page" id="homePage" style="display: none;">
+            <h1>MBTI已经过时，SBTI来了。</h1>
+            <div class="credits">
+                作者：Jankin<br>
+                灵感来源：<a href="https://space.bilibili.com/417038183" target="_blank">B站@蛆肉儿串儿</a><br>
+                托管：本地运行
+            </div>
+            <button class="start-btn" onclick="startTest()">开始测试</button>
+        </div>
+
+        <!-- 测试页面（直接显示） -->
+        <div class="test-page" id="testPage" style="display: block;">
+            <div class="progress-header" id="progressHeader">0 / 31</div>
+            <div class="questions-container" id="questionsContainer"></div>
+            <div class="footer-note">全选完才会放行。世界已经够乱了，起码把题做完整。</div>
+            <div class="submit-section">
+                <button class="back-btn" onclick="goHome()">返回首页</button>
+                <button class="submit-btn" id="submitBtn" disabled onclick="submitTest()">提交并查看结果</button>
+            </div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div class="result-page" id="resultPage">
+            <div class="result-type" id="resultType"></div>
+            <div class="result-name" id="resultName"></div>
+            <div class="result-match">匹配度 <span id="resultMatch">0</span>%</div>
+            <div class="result-description" id="resultDesc"></div>
+            <h3 class="dimensions-title">十五维度评分</h3>
+            <div class="dimensions-grid" id="dimensionsGrid"></div>
+            <div class="disclaimer">
+                本测试仅供娱乐，别拿它当诊断、面试、相亲、分手、招魂、算命或人生判决书。
+            </div>
+            <button class="restart-btn" onclick="restartTest()">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        // 31道题目数据
+        const questions = [
+            {
+                id: 1,
+                text: "我一定要不断往上爬、变得更厉害",
+                options: [
+                    { label: "A", text: "不认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "认同" }
+                ],
+                dims: ["进取"]
+            },
+            {
+                id: 2,
+                text: "我做事常常有计划，____",
+                options: [
+                    { label: "A", text: "然而计划不如变化快。" },
+                    { label: "B", text: "有时能完成，有时不能。" },
+                    { label: "C", text: "我讨厌被打破计划。" }
+                ],
+                dims: ["计划性", "执行力"]
+            },
+            {
+                id: 3,
+                text: "我在任何关系里都很重视个人空间",
+                options: [
+                    { label: "A", text: "我更喜欢依赖与被依赖" },
+                    { label: "B", text: "看情况" },
+                    { label: "C", text: "是的！（斩钉截铁地说道）" }
+                ],
+                dims: ["边界感", "亲密需求"]
+            },
+            {
+                id: 4,
+                text: "大多数人是善良的",
+                options: [
+                    { label: "A", text: "其实邪恶的人心比世界上的痔疮更多。" },
+                    { label: "B", text: "也许吧。" },
+                    { label: "C", text: "是的，我愿相信好人更多。" }
+                ],
+                dims: ["信任度"]
+            },
+            {
+                id: 5,
+                text: "别人说你'执行力强'，你内心更接近哪句？",
+                options: [
+                    { label: "A", text: "我被逼到最后确实执行力超强。。。" },
+                    { label: "B", text: "啊，有时候吧。" },
+                    { label: "C", text: "是的，事情本来就该被推进" }
+                ],
+                dims: ["执行力"]
+            },
+            {
+                id: 6,
+                text: "你的恋爱对象是一个尊老爱幼，温柔敦厚，洁身自好，光明磊落，大义凛然，能言善辩，口才流利，观察入微，见多识广，博学多才，诲人不倦，和蔼可亲，平易近人，心地善良，慈眉善目，积极进取，意气风发，玉树临风，国色天香，倾国倾城，花容月貌的人，此时你会？",
+                options: [
+                    { label: "A", text: "就算ta再优秀我也不会陷入太深。" },
+                    { label: "B", text: "会介于A和C之间。" },
+                    { label: "C", text: "会非常珍惜ta，也许会变成恋爱脑。" }
+                ],
+                dims: ["恋爱脑", "自我保护"]
+            },
+            {
+                id: 7,
+                text: "我喜欢打破常规，不喜欢被束缚",
+                options: [
+                    { label: "A", text: "认同" },
+                    { label: "B", text: "保持中立" },
+                    { label: "C", text: "不认同" }
+                ],
+                dims: ["叛逆性"]
+            },
+            {
+                id: 8,
+                text: "您平时有什么爱好？",
+                options: [
+                    { label: "A", text: "吃喝拉撒" },
+                    { label: "B", text: "艺术爱好" },
+                    { label: "C", text: "饮酒" },
+                    { label: "D", text: "健身" }
+                ],
+                dims: ["生活方式"]
+            },
+            {
+                id: 9,
+                text: "你因玩《第五人格》（一款刺激的游戏）而结识许多网友，并被邀请线下见面，你的想法是？",
+                options: [
+                    { label: "A", text: "网上口嗨下就算了，真见面还是有点忐忑。" },
+                    { label: "B", text: "见网友也挺好，反正谁来聊我就聊两句。" },
+                    { label: "C", text: "我会打扮一番并热情聊天，万一呢，我是说万一呢？" }
+                ],
+                dims: ["社交主动性", "开放性"]
+            },
+            {
+                id: 10,
+                text: "对象超过5小时没回消息，说自己窜稀了，你会怎么想？",
+                options: [
+                    { label: "A", text: "拉稀不可能5小时，也许ta隐瞒了我。" },
+                    { label: "B", text: "在信任和怀疑之间摇摆。" },
+                    { label: "C", text: "也许今天ta真的不太舒服。" }
+                ],
+                dims: ["信任度", "安全感"]
+            },
+            {
+                id: 11,
+                text: "外人的评价对我来说无所吊谓。",
+                options: [
+                    { label: "A", text: "不认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "认同" }
+                ],
+                dims: ["自我认同"]
+            },
+            {
+                id: 12,
+                text: "你因便秘坐在马桶上（已长达30分钟），拉不出很难受。此时你更像",
+                options: [
+                    { label: "A", text: "再坐三十分钟看看，说不定就有了。" },
+                    { label: "B", text: "用力拍打自己的屁股并说：'死屁股，快拉啊！'" },
+                    { label: "C", text: "使用开塞露，快点拉出来才好。" }
+                ],
+                dims: ["行动风格", "决策方式"]
+            },
+            {
+                id: 13,
+                text: "我对天发誓，我对待每一份感情都是认真的！",
+                options: [
+                    { label: "A", text: "并没有" },
+                    { label: "B", text: "也许？" },
+                    { label: "C", text: "是的！（问心无愧骄傲脸）" }
+                ],
+                dims: ["感情态度"]
+            },
+            {
+                id: 14,
+                text: "快考试了，学校规定必须上晚自习，请假会扣分，但今晚你约了女/男神一起玩《绝地求生：刺激战场》（一款刺激的游戏），你怎么办？",
+                options: [
+                    { label: "A", text: "翘了！反正就一次！" },
+                    { label: "B", text: "干脆请个假吧。" },
+                    { label: "C", text: "都快考试了还去啥。" }
+                ],
+                dims: ["规则意识", "冲动性"]
+            },
+            {
+                id: 15,
+                text: "我做决定比较果断，不喜欢犹豫",
+                options: [
+                    { label: "A", text: "不认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "认同" }
+                ],
+                dims: ["决策风格"]
+            },
+            {
+                id: 16,
+                text: "我做事通常有目标。",
+                options: [
+                    { label: "A", text: "不认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "认同" }
+                ],
+                dims: ["目标感"]
+            },
+            {
+                id: 17,
+                text: "我不够好，周围的人都比我优秀",
+                options: [
+                    { label: "A", text: "确实" },
+                    { label: "B", text: "有时" },
+                    { label: "C", text: "不是" }
+                ],
+                dims: ["自尊", "自我认同"]
+            },
+            {
+                id: 18,
+                text: "突然某一天，我意识到人生哪有什么他妈的狗屁意义，人不过是和动物一样被各种欲望支配着，纯纯是被激素控制的东西，饿了就吃，困了就睡，一发情就想交配，我们简直和猪狗一样没什么区别。",
+                options: [
+                    { label: "A", text: "是这样的。" },
+                    { label: "B", text: "也许是，也许不是。" },
+                    { label: "C", text: "这简直是胡扯" }
+                ],
+                dims: ["虚无感", "意义感"]
+            },
+            {
+                id: 19,
+                text: "我在不同人面前会表现出不一样的自己",
+                options: [
+                    { label: "A", text: "不认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "认同" }
+                ],
+                dims: ["面具程度", "自我一致性"]
+            },
+            {
+                id: 20,
+                text: "我内心有真正追求的东西",
+                options: [
+                    { label: "A", text: "不认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "认同" }
+                ],
+                dims: ["意义感", "目标感"]
+            },
+            {
+                id: 21,
+                text: "我做事主要为了取得成果和进步，而不是避免麻烦和风险。",
+                options: [
+                    { label: "A", text: "不认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "认同" }
+                ],
+                dims: ["进取", "风险偏好"]
+            },
+            {
+                id: 22,
+                text: "此题没有题目，请盲选",
+                options: [
+                    { label: "A", text: "反复思考后感觉应该选A？" },
+                    { label: "B", text: "啊，要不选B？" },
+                    { label: "C", text: "不会就选C？" }
+                ],
+                dims: ["直觉"]
+            },
+            {
+                id: 23,
+                text: "我不仅是屌丝，我还是joker,我还是咸鱼，这辈子没谈过一场恋爱，胆怯又自卑，我的青春就是一场又一场的意淫，每一天幻想着我也能有一个女孩子和我一起压马路，一起逛街，一起玩，现实却是爆了父母金币，读了个烂学校，混日子之后找班上，没有理想，没有目标，没有能力的三无人员，每次看到你能在网上开屌丝的玩笑，我都想哭，我就是地底下的老鼠，透过下水井的缝隙，窥探地上的各种美好，每一次看到这种都是对我心灵的一次伤害，对我生存空间的一次压缩，求求哥们给我们这种小丑一点活路吧，我真的不想在白天把枕巾哭湿一大片",
+                options: [
+                    { label: "A", text: "我哭了。。" },
+                    { label: "B", text: "这是什么。。" },
+                    { label: "C", text: "这不是我！" }
+                ],
+                dims: ["屌丝指数", "自我认同"]
+            },
+            {
+                id: 24,
+                text: "我和人相处主打一个电子围栏，靠太近会自动报警。",
+                options: [
+                    { label: "A", text: "认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "不认同" }
+                ],
+                dims: ["边界感"]
+            },
+            {
+                id: 25,
+                text: "朋友带了ta的朋友一起来玩，你最可能的状态是",
+                options: [
+                    { label: "A", text: "对'朋友的朋友'天然有点距离感，怕影响二人关系" },
+                    { label: "B", text: "看对方，能玩就玩。" },
+                    { label: "C", text: "朋友的朋友应该也算我的朋友！要热情聊天" }
+                ],
+                dims: ["社交主动性", "开放性"]
+            },
+            {
+                id: 26,
+                text: "我渴望和我信任的人关系密切，熟得像失散多年的亲戚。",
+                options: [
+                    { label: "A", text: "认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "不认同" }
+                ],
+                dims: ["亲密需求"]
+            },
+            {
+                id: 27,
+                text: "你走在街上，一位萌萌的小女孩蹦蹦跳跳地朝你走来（正脸、侧脸看都萌，用vivo、苹果、华为、OPPO手机看都萌，实在是非常萌的那种），她递给你一根棒棒糖，此时你作何感想？",
+                options: [
+                    { label: "A", text: "呜呜她真好真可爱！居然给我棒棒糖！" },
+                    { label: "B", text: "一脸懵逼，作挠头状" },
+                    { label: "C", text: "这也许是一种新型诈骗？还是走开为好。" }
+                ],
+                dims: ["信任度", "天真度"]
+            },
+            {
+                id: 28,
+                text: "恋爱后，对象非常黏人，你作何感想？",
+                options: [
+                    { label: "A", text: "那很爽了" },
+                    { label: "B", text: "都行无所谓" },
+                    { label: "C", text: "我更喜欢保留独立空间" }
+                ],
+                dims: ["亲密需求", "边界感"]
+            },
+            {
+                id: 29,
+                text: "我很清楚真正的自己是什么样的",
+                options: [
+                    { label: "A", text: "不认同" },
+                    { label: "B", text: "中立" },
+                    { label: "C", text: "认同" }
+                ],
+                dims: ["自我认知"]
+            },
+            {
+                id: 30,
+                text: "有时候你明明对一件事有不同的、负面的看法，但最后没说出来。多数情况下原因是：",
+                options: [
+                    { label: "A", text: "这种情况较少。" },
+                    { label: "B", text: "可能碍于情面或者关系。" },
+                    { label: "C", text: "不想让别人知道自己是个阴暗的人。" }
+                ],
+                dims: ["面具程度", "社交策略"]
+            },
+            {
+                id: 31,
+                text: "我在感情里经常担心被对方抛弃",
+                options: [
+                    { label: "A", text: "是的" },
+                    { label: "B", text: "偶尔" },
+                    { label: "C", text: "不是" }
+                ],
+                dims: ["安全感", "依恋类型"]
+            }
+        ];
+
+        // 人格类型定义
+        const personalityTypes = {
+            "CTRL": {
+                name: "拿捏者",
+                desc: "你是关系中的主导者，擅长把握节奏和方向。你清楚自己想要什么，也知道如何得到它。在社交场合中游刃有余，能够准确读取他人的情绪和意图。你的魅力在于自信和从容，但有时也可能显得过于精于算计。建议：偶尔放下控制欲，享受一下被拿捏的感觉也不错哦～"
+            },
+            "SHIT": {
+                name: "愤世者",
+                desc: "你对这个世界有着清醒（或许过于清醒）的认知。看透了太多虚伪和套路，让你对很多事物保持着距离和批判。你的内心其实很柔软，只是被现实的刺扎怕了。建议：世界确实很烂，但偶尔也要允许一些美好溜进来呀。"
+            },
+            "JOKER": {
+                name: "小丑",
+                desc: "你是生活中的喜剧演员，善于用自嘲和幽默化解尴尬。表面上看你很快乐，但只有你知道自己内心的孤独。你的敏感度很高，能够察觉到他人的情绪变化。建议：你的笑话很好笑，但偶尔也要认真对待自己的感受。"
+            },
+            "FISH": {
+                name: "咸鱼",
+                desc: "你的人生信条是'躺平即正义'。不争不抢，随遇而安，这既是你的智慧，也可能是你的逃避。你其实很有潜力，只是懒得发挥。建议：偶尔翻个身，看看另一边的风景也挺好。"
+            },
+            "LOVE": {
+                name: "恋爱脑",
+                desc: "你是一个不折不扣的浪漫主义者。感情对你来说是生命中最重要的事情之一，你愿意为爱付出一切。你的热情和专一是宝贵的品质，但也要警惕迷失自我。建议：爱情很美好，但你更美好。"
+            },
+            "COOL": {
+                name: "高冷",
+                desc: "你给人的印象是疏离和神秘。这未必是装的，你可能真的需要大量独处时间。你的内心世界很丰富，只是很少展示给别人看。建议：偶尔打开窗户透透气，外面其实没你想的那么吵。"
+            },
+            "SIMP": {
+                name: "舔狗",
+                desc: "你有一颗真诚热烈的心，愿意为喜欢的人付出很多。这没什么丢人的，真诚是这个时代的稀缺品。但你也要学会设立底线。建议：舔到最后应有所有，但先舔舔自己好吗。"
+            },
+            "GIGA": {
+                name: "大屌丝",
+                desc: "你是屌丝文化的集大成者。自嘲是你的盔甲，但不要让它变成牢笼。你比想象中更有价值，只是需要一点时间和运气来证明。建议：每个大人物都曾是屌丝，你只是还在起点而已。"
+            },
+            "NORM": {
+                name: "正常人",
+                desc: "恭喜你，你是这个测试里最'正常'的人。你没有极端的倾向，保持着相对平衡的状态。这让你能够适应各种环境，但也可能缺乏鲜明的个性标签。建议：正常很好，但偶尔疯一下也挺刺激。"
+            },
+            "MYST": {
+                name: "谜语人",
+                desc: "你是一个让人捉摸不透的存在。有时候连你自己都不知道自己下一秒会做什么。这种神秘感既吸引人，也可能让人感到困惑。建议：谜底偶尔要揭晓，不然别人就不猜了。"
+            },
+            "EDGE": {
+                name: "边缘人",
+                desc: "你习惯在人群的边缘游走，既不完全融入，也不彻底远离。这让你保持着独立的思考，但也可能让你感到孤独。建议：边缘也有边缘的风景，但想进来看一眼也不需要门票。"
+            },
+            "BOSS": {
+                name: "扛把子",
+                desc: "你是天生的领导者，散发着让人信服的气场。你有明确的目标和强大的执行力，能够带领团队前进。但要注意倾听他人的声音。建议：扛把子也有扛不动的时候，学会示弱是成熟的表现。"
+            }
+        };
+
+        // 维度定义
+        const allDimensions = [
+            "进取", "计划性", "执行力", "边界感", "亲密需求", "信任度",
+            "自我认同", "行动风格", "决策风格", "感情态度", "规则意识",
+            "冲动性", "目标感", "自尊", "虚无感", "意义感", "面具程度",
+            "自我一致性", "风险偏好", "直觉", "屌丝指数", "开放性",
+            "社交主动性", "安全感", "依恋类型", "自我认知", "社交策略",
+            "天真度", "叛逆性", "恋爱脑", "自我保护", "生活方式"
+        ];
+
+        let answers = {};
+        let dimensionScores = {};
+
+        // 初始化维度分数
+        allDimensions.forEach(dim => {
+            dimensionScores[dim] = 50;
+        });
+
+        function startTest() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('testPage').style.display = 'block';
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.id = `question-${q.id}`;
+                if (answers[q.id]) card.classList.add('answered');
+
+                let optionsHTML = q.options.map(opt => `
+                    <div class="option ${answers[q.id] === opt.label ? 'selected' : ''}" 
+                         onclick="selectOption(${q.id}, '${opt.label}')">
+                        <div class="option-radio"></div>
+                        <span class="option-label">${opt.label}</span>
+                        <span class="option-text">${opt.text}</span>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="question-header">
+                        <span>第 ${q.id} 题</span>
+                        <span>维度已隐藏</span>
+                    </div>
+                    <div class="question-text">${q.text}</div>
+                    <div class="options">${optionsHTML}</div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(questionId, optionLabel) {
+            answers[questionId] = optionLabel;
+
+            // 更新UI
+            const card = document.getElementById(`question-${questionId}`);
+            card.classList.add('answered');
+
+            const options = card.querySelectorAll('.option');
+            options.forEach(opt => {
+                const label = opt.querySelector('.option-label').textContent;
+                if (label === optionLabel) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+
+            // 更新进度
+            const answered = Object.keys(answers).length;
+            document.getElementById('progressHeader').textContent = `${answered} / 31`;
+
+            // 更新维度分数
+            updateDimensionScores(questionId, optionLabel);
+
+            // 检查是否全部完成
+            if (answered === 31) {
+                document.getElementById('submitBtn').disabled = false;
+            }
+        }
+
+        function updateDimensionScores(questionId, optionLabel) {
+            const q = questions.find(question => question.id === questionId);
+            if (!q) return;
+
+            const optionIndex = q.options.findIndex(opt => opt.label === optionLabel);
+            const value = optionIndex === 0 ? -15 : optionIndex === 1 ? 0 : 15;
+
+            q.dims.forEach(dim => {
+                dimensionScores[dim] = Math.max(0, Math.min(100, dimensionScores[dim] + value));
+            });
+        }
+
+        function submitTest() {
+            document.getElementById('testPage').style.display = 'none';
+            document.getElementById('resultPage').style.display = 'block';
+
+            const result = calculateResult();
+            displayResult(result);
+        }
+
+        function calculateResult() {
+            // 基于答案计算人格类型
+            let scores = {
+                CTRL: 0, SHIT: 0, JOKER: 0, FISH: 0, LOVE: 0,
+                COOL: 0, SIMP: 0, GIGA: 0, NORM: 0, MYST: 0,
+                EDGE: 0, BOSS: 0
+            };
+
+            // 根据关键答案计算类型倾向（注意 answers 的 key 是字符串）
+            if (answers['1'] === 'C') scores.CTRL += 20;
+            if (answers['1'] === 'A') scores.FISH += 15;
+
+            if (answers['4'] === 'A') scores.SHIT += 25;
+            if (answers['4'] === 'C') scores.LOVE += 15;
+
+            if (answers['6'] === 'C') scores.LOVE += 25;
+            if (answers['6'] === 'A') scores.COOL += 15;
+
+            if (answers['5'] === 'C') scores.CTRL += 15;
+            if (answers['5'] === 'A') scores.JOKER += 10;
+
+            if (answers['18'] === 'A') scores.SHIT += 20;
+            if (answers['18'] === 'C') scores.NORM += 15;
+
+            if (answers['23'] === 'A') scores.GIGA += 25;
+            if (answers['23'] === 'C') scores.CTRL += 10;
+
+            if (answers['24'] === 'A') scores.COOL += 20;
+            if (answers['24'] === 'C') scores.SIMP += 15;
+
+            if (answers['10'] === 'A') scores.SHIT += 15;
+            if (answers['10'] === 'C') scores.LOVE += 15;
+
+            if (answers['31'] === 'A') scores.SIMP += 20;
+            if (answers['31'] === 'C') scores.COOL += 15;
+
+            if (answers['15'] === 'C') scores.BOSS += 20;
+            if (answers['15'] === 'A') scores.EDGE += 15;
+
+            if (answers['27'] === 'A') scores.CTRL += 15;
+            if (answers['27'] === 'C') scores.MYST += 15;
+
+            // 随机因素
+            const rand = Math.random() * 10;
+            scores.NORM += rand;
+
+            // 找出最高分类型
+            let maxScore = 0;
+            let resultType = 'NORM';
+            for (const type in scores) {
+                if (scores[type] > maxScore) {
+                    maxScore = scores[type];
+                    resultType = type;
+                }
+            }
+
+            // 计算匹配度（随机 75-99）
+            const match = Math.floor(75 + Math.random() * 24);
+
+            return { type: resultType, match };
+        }
+
+        function displayResult(result) {
+            const typeInfo = personalityTypes[result.type];
+
+            document.getElementById('resultType').textContent = result.type;
+            document.getElementById('resultName').textContent = typeInfo.name;
+            document.getElementById('resultMatch').textContent = result.match;
+            document.getElementById('resultDesc').textContent = typeInfo.desc;
+
+            // 显示维度分数
+            const grid = document.getElementById('dimensionsGrid');
+            grid.innerHTML = '';
+
+            // 随机选择15个维度显示
+            const displayDims = allDimensions.sort(() => Math.random() - 0.5).slice(0, 15);
+
+            displayDims.forEach(dim => {
+                const score = dimensionScores[dim] || Math.floor(30 + Math.random() * 40);
+                const item = document.createElement('div');
+                item.className = 'dimension-item';
+                item.innerHTML = `
+                    <div class="dimension-label">${dim}</div>
+                    <div class="dimension-bar">
+                        <div class="dimension-fill" style="width: ${score}%"></div>
+                    </div>
+                    <div class="dimension-value">${score}%</div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function goHome() {
+            document.getElementById('testPage').style.display = 'none';
+            document.getElementById('homePage').style.display = 'block';
+        }
+
+        function restartTest() {
+            answers = {};
+            allDimensions.forEach(dim => {
+                dimensionScores[dim] = 50;
+            });
+            document.getElementById('resultPage').style.display = 'none';
+            document.getElementById('homePage').style.display = 'block';
+        }
+
+        // 页面加载时直接显示题目
+        window.onload = function() {
+            renderQuestions();
+        };
+    </script>
+</body>
+</html>
